@@ -121,7 +121,7 @@ func vulnerableLoginHandler(w http.ResponseWriter, r *http.Request) {
 <body>
     <div class="container">
         <div class="nav">
-            <a href="/">← Back to Main Site</a>
+            <a href="/">Back to Main Site</a>
         </div>
         
         <div class="login-card">
@@ -326,7 +326,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 <body>
     <div>
         <div class="nav">
-            <a href="/">← Back to Main Site</a>
+            <a href="/">Back to Main Site</a>
         </div>
         
         <div class="login-container">
