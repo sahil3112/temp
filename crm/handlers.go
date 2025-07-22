@@ -368,6 +368,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// SECURE: Using parameterized queries
 	query := "SELECT id, username, email FROM users WHERE username = ? AND password = ?"
+	fmt.Printf("Executing secure query: %s\n", query)
+	fmt.Printf("Parameters: username='%s', password='%s'\n", username, password)
 	row := db.QueryRow(query, username, password)
 	
 	var user User
