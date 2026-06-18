@@ -3,3 +3,7 @@ Exterro_FTK_Imager_(x64)-4.7.3.81.exe filter=lfs diff=lfs merge=lfs -text
 ftk.exe filter=lfs diff=lfs merge=lfs -text
 suspicious_traffic.pcap filter=lfs diff=lfs merge=lfs -text
 suspicious_traffic-1.pcap filter=lfs diff=lfs merge=lfs -text
+file-4.pcap filter=lfs diff=lfs merge=lfs -text
+file-1.pcap filter=lfs diff=lfs merge=lfs -text
+file-2.pcap filter=lfs diff=lfs merge=lfs -text
+file-3.pcap filter=lfs diff=lfs merge=lfs -text
