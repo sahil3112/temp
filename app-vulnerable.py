@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
-"""Globomantics Purchasing API -- internal build 4.2.1.
 
-    ####################################################################
-    #  DELIBERATELY VULNERABLE. Lab target only. Never deploy this.    #
-    ####################################################################
-
-Two information-disclosure defects are planted in this file's error handling.
-Both are the kind that survive code review because the code around them looks
-fine: validation is present, the ORM-less SQL "works", and debug mode is off.
-
-Objective 2 of the lab is to fix them. Look for the TODO-1 / TODO-2 / TODO-3
-banners below.
-
-    ./run.sh vulnerable
-"""
 import os
 import sqlite3
 import traceback
@@ -24,15 +10,6 @@ from pathlib import Path
 from flask import Flask, abort, g, jsonify, request
 from werkzeug.exceptions import HTTPException
 
-# ---------------------------------------------------------------------------
-# TODO-1 (Lab Objective 2, Step 1) -- configuration and logging
-#
-# There is no environment switch here and no server-side logging. Every
-# deployment of this service therefore behaves like a developer laptop, and
-# when something goes wrong the only place the detail goes is the HTTP
-# response. Add an APP_ENV setting that defaults to "production", and a
-# logger that writes full detail to logs/api.log.
-# ---------------------------------------------------------------------------
 DB_PATH = os.environ.get("GLOBO_DB") or str(Path(__file__).resolve().parent / "globomantics.db")
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", "5000"))
@@ -64,20 +41,6 @@ def public_product(row):
         "stock_qty": row["stock_qty"],
     }
 
-
-# ---------------------------------------------------------------------------
-# TODO-2 (Lab Objective 2, Step 2) -- the global error handler
-#
-# This single handler catches every exception the application raises and
-# serialises it straight back to the caller: exception type, message, and the
-# complete Python traceback with absolute source paths.
-#
-# Replace it with two handlers:
-#   * one for werkzeug HTTPException -- keep the real status code, return a
-#     short message that describes the CLIENT's mistake and nothing else;
-#   * one for Exception -- mint a correlation ID, log the full traceback
-#     server side, and return only the generic message plus that ID.
-# ---------------------------------------------------------------------------
 @app.errorhandler(Exception)
 def debug_error_handler(exc):
     status = exc.code if isinstance(exc, HTTPException) else 500
@@ -115,18 +78,6 @@ def list_products():
         ).fetchall()
         return jsonify([public_product(r) for r in rows])
 
-    # -----------------------------------------------------------------------
-    # TODO-3 (Lab Objective 2, Step 3) -- the product search query
-    #
-    # The search term is interpolated straight into the SQL string, so any
-    # value that breaks the quoting raises sqlite3.OperationalError. The
-    # except block below then hands the caller the failing statement and the
-    # database path, which together disclose the schema -- including the
-    # supplier_cost_cents column the API is careful never to return.
-    #
-    # Bind the search term as a parameter, and delete the except block so
-    # database failures reach the global handler like everything else.
-    # -----------------------------------------------------------------------
     sql = (
         "SELECT sku, name, price_cents, stock_qty, supplier_cost_cents "
         f"FROM products WHERE name LIKE '%{term}%' OR sku LIKE '%{term}%' "
@@ -223,6 +174,4 @@ def get_order(reference):
 
 
 if __name__ == "__main__":
-    # debug=False on purpose. The leaks below are not Werkzeug's debugger --
-    # they are this application's own error handling.
     app.run(host=HOST, port=PORT, debug=False)
