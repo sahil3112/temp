@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# ponytail: preview-only convenience so direct-clicking Sign In here doesn't 501.
-# The real, graded login flow runs through SET's Credential Harvester clone
-# (port 80, see poc/), not this static server — this just avoids a raw error
-# page when eyeballing the standalone portal.
 import http.server
 
 
