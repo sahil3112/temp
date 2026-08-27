@@ -115,8 +115,8 @@ def health():
     return jsonify(
         status="ok",
         service="globomantics-purchasing-api",
-        version="4.3.0",
-        env=APP_ENV,
+        version="4.2.1",
+        env=os.environ.get("APP_ENV", "development"),
     )
 
 
