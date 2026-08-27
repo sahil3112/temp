@@ -1,23 +1,5 @@
 #!/usr/bin/env python3
-"""Globomantics Purchasing API -- internal build 4.3.0 (hardened).
 
-Answer key for Lab Objective 2. Same routes and same behaviour as ../app.py
-for every request that succeeds; the difference is entirely in what leaves
-the process when a request fails.
-
-What changed, against the three TODO banners in ../app.py:
-
-  TODO-1  APP_ENV, defaulting to "production" so a missing or misspelled
-          variable fails safe, plus a logger that keeps the full detail
-          server side in logs/api.log.
-  TODO-2  One handler for expected client errors (real status code, short
-          message about the caller's mistake) and one for everything else
-          (correlation ID out, traceback to the log).
-  TODO-3  The search term is bound as a parameter and the endpoint no longer
-          builds its own error response.
-
-    ./run.sh secure
-"""
 import logging
 import os
 import sqlite3
@@ -29,8 +11,6 @@ from flask import Flask, abort, g, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-
-# Fail safe: anything other than an explicit "development" is production.
 APP_ENV = os.environ.get("APP_ENV", "production").strip().lower()
 DB_PATH = os.environ.get("GLOBO_DB") or str(REPO_ROOT / "globomantics.db")
 LOG_DIR = Path(os.environ.get("GLOBO_LOG_DIR") or (REPO_ROOT / "logs"))
@@ -73,13 +53,6 @@ def public_product(row):
         "stock_qty": row["stock_qty"],
     }
 
-
-# ---------------------------------------------------------------------------
-# Global exception filter
-# ---------------------------------------------------------------------------
-# Expected client errors keep their real status code, because a 404 that
-# answers 500 is its own kind of broken. What they lose is any wording that
-# describes the server: no exception types, no paths, no SQL.
 CLIENT_MESSAGES = {
     400: "Malformed request body.",
     404: "Resource not found.",
@@ -99,8 +72,6 @@ def _correlation_id():
 
 @app.errorhandler(HTTPException)
 def handle_client_error(exc):
-    # A 5xx dressed up as an HTTPException is still an incident: send it down
-    # the unexpected-error path so it gets an ID and a log entry.
     if exc.code is None or exc.code >= 500:
         return handle_unexpected_error(exc)
     return (
@@ -118,8 +89,6 @@ def handle_client_error(exc):
 def handle_unexpected_error(exc):
     correlation_id = _correlation_id()
 
-    # Everything the vulnerable build put in the response body goes here
-    # instead. exc_info=True writes the full traceback to logs/api.log.
     log.error(
         "unhandled exception correlation_id=%s method=%s path=%s remote=%s",
         correlation_id,
@@ -135,8 +104,6 @@ def handle_unexpected_error(exc):
         "reference_id": correlation_id,
     }
 
-    # Environment parity: the same code path runs in every environment. A
-    # developer opts into detail explicitly; nobody inherits it by accident.
     if APP_ENV == "development":
         body["debug"] = {"exception": type(exc).__name__, "detail": str(exc)}
 
@@ -163,8 +130,6 @@ def list_products():
         ).fetchall()
         return jsonify([public_product(r) for r in rows])
 
-    # Bound parameter: the term is data, never statement text. A quote in the
-    # search box is now a character to match on, not a syntax error to leak.
     pattern = f"%{term}%"
     rows = db().execute(
         "SELECT sku, name, price_cents, stock_qty FROM products"

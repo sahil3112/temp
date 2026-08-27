@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Create (or reset) the Globomantics purchasing database.
 
-Safe to re-run at any point in the lab -- it drops both tables and rebuilds
-them, which is how you get stock levels back after hammering the API.
-
-    python seed.py
-"""
 import os
 import sqlite3
 from pathlib import Path
@@ -36,8 +30,7 @@ CREATE TABLE orders (
 );
 """
 
-# supplier_cost_cents is commercially sensitive. The API never returns it --
-# which is exactly why seeing it inside a leaked SQL statement matters.
+
 PRODUCTS = [
     ("GLM-1001", "Globomantics SmartHub Pro",      24999,  12, 14200),
     ("GLM-1002", "Globomantics Mesh Router X6",    18950,  40, 10100),

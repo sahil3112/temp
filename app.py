@@ -18,7 +18,6 @@ app = Flask(__name__)
 
 
 def db():
-    """Per-request SQLite connection."""
     if "db" not in g:
         g.db = sqlite3.connect(DB_PATH)
         g.db.row_factory = sqlite3.Row
@@ -33,7 +32,6 @@ def close_db(_exc):
 
 
 def public_product(row):
-    """Shape a product row for the client. supplier_cost_cents is withheld."""
     return {
         "sku": row["sku"],
         "name": row["name"],
@@ -104,8 +102,6 @@ def list_products():
 
 @app.post("/api/orders")
 def create_order():
-    # Malformed JSON raises werkzeug BadRequest right here, before a single
-    # line of the validation below gets a chance to run.
     payload = request.get_json(force=True)
 
     if not isinstance(payload, dict):
