@@ -4,14 +4,22 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
-case "${1:-vulnerable}" in
-  vulnerable) ENTRY="app.py" ;;
-  secure)     ENTRY="solution/app.py" ;;
-  *) echo "usage: $0 [vulnerable|secure]" >&2; exit 2 ;;
-esac
+[ -d .venv ] || python3 -m venv .venv
+# shellcheck disable=SC1091
+source .venv/bin/activate
 
-export GLOBO_DB="${GLOBO_DB:-$ROOT/globomantics.db}"
-[ -f "$GLOBO_DB" ] || python seed.py
+python -c 'import fastapi, uvicorn, pydantic, yaml' 2>/dev/null || pip install -r requirements.txt
 
-echo "starting $ENTRY on ${HOST:-127.0.0.1}:${PORT:-5000}  (db: $GLOBO_DB)"
-exec python "$ENTRY"
+HOST="${HOST:-127.0.0.1}"
+PORT="${PORT:-8000}"
+
+echo "Globomantics Data Processing API"
+echo "  GET  http://${HOST}:${PORT}/health"
+echo "  POST http://${HOST}:${PORT}/api/v1/pack     (Objective 1 — memory safety)"
+echo "  POST http://${HOST}:${PORT}/api/v1/ingest   (Objective 2 — YAML ingest)"
+echo "  POST http://${HOST}:${PORT}/api/v1/jobs     (Objective 3 — JSON jobs)"
+echo "  docs http://${HOST}:${PORT}/docs"
+echo
+echo "Ctrl+C to stop. Restart ./run.sh after you save a patch."
+
+exec uvicorn server:app --host "$HOST" --port "$PORT"
