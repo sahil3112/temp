@@ -1,0 +1,7 @@
+job_id: WH-1001
+source: warehouse-east
+priority: 1
+records:
+  - sku: GM-WIDGET
+    qty: 3
+    price_cents: 1250

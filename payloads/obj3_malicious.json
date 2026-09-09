@@ -1,0 +1,11 @@
+{
+  "job_id": "WH-1001",
+  "source": "warehouse-east",
+  "records": [
+    {
+      "sku": "GM-WIDGET",
+      "qty": "lots",
+      "price_cents": 1250
+    }
+  ]
+}

