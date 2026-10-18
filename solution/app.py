@@ -1,7 +1,5 @@
 import re
-
 from flask import Flask, request
-
 import db
 from routes_v2 import v2
 
@@ -13,8 +11,6 @@ app = Flask(__name__)
 db.init()
 
 app.register_blueprint(v2)
-# v1 and beta are no longer registered, so the router answers 404 for them
-
 
 @app.after_request
 def sunset_legacy(resp):
@@ -23,7 +19,6 @@ def sunset_legacy(resp):
         resp.headers["Deprecation"] = DEPRECATED_SINCE
         resp.headers["Link"] = '</v2/users>; rel="successor-version"'
     return resp
-
 
 @app.errorhandler(404)
 def not_found(_):
