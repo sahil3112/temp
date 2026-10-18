@@ -7,13 +7,11 @@ beta = Blueprint("beta", __name__, url_prefix="/beta")
 
 
 @v1.get("/users")
-@beta.get("/users")
 def list_users():
     return jsonify(db.query("SELECT * FROM users"))
 
 
 @v1.get("/users/<int:user_id>")
-@beta.get("/users/<int:user_id>")
 def get_user(user_id):
     user = db.query("SELECT * FROM users WHERE id = ?", (user_id,), one=True)
     if user is None:
@@ -36,3 +34,10 @@ def delete_user(user_id):
     if not db.execute("DELETE FROM users WHERE id = ?", (user_id,)):
         return {"error": "not found"}, 404
     return "", 204
+
+
+@beta.get("/users")
+def search_users():
+    q = request.args.get("q", "")
+    users = db.query("SELECT * FROM users WHERE username LIKE ?", (f"%{q}%",))
+    return jsonify({"beta": True, "count": len(users), "users": users})
